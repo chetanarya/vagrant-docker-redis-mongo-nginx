@@ -1,0 +1,32 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Specify Vagrant version and Vagrant API version
+Vagrant.require_version ">= 1.6.0"
+VAGRANTFILE_API_VERSION = "2"
+
+# Create and configure the VM(s)
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.hostname = "dockerhost"
+  # Skip checking for an updated Vagrant box
+  config.vm.box_check_update = false
+  config.vm.provider "virtualbox" do |v|
+    v.memory = 1024
+    v.cpus = 1
+   # v.name = "dev01"
+  end
+  config.ssh.insert_key = false
+
+  # Spin up a "host box" for use with the Docker provider
+  # and then provision it with Docker
+  config.vm.box = "ubuntu/trusty64"
+  config.vm.provision "docker"
+
+  #config.vm.synced_folder ".", "/vagrant", type:"nfs" <-- think about this.
+  config.vm.synced_folder ".", "/vagrant"
+
+  config.vm.network "forwarded_port", guest: 80, host: 8080
+  config.vm.network "forwarded_port", guest: 443, host: 8443
+  config.vm.network "forwarded_port", guest: 6379, host: 6379
+  config.vm.network "forwarded_port", guest: 27017, host: 27017
+end
